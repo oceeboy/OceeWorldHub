@@ -1,11 +1,29 @@
-import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 import React from "react";
 
-const CustomButton = ({ handlePress, title }) => {
+const CustomButton = ({ handlePress, title, isLoading }) => {
   return (
     <>
-      <TouchableOpacity style={styles.CustomButton} onPress={handlePress}>
+      <TouchableOpacity
+        activeOpacity={0.7}
+        style={isLoading ? styles.CustomButtonLoading : styles.CustomButton}
+        onPress={handlePress}
+      >
         <Text style={styles.customText}>{title}</Text>
+        {isLoading && (
+          <ActivityIndicator
+            animating={isLoading}
+            color="#fff"
+            size="small"
+            style={styles.activityIndicator}
+          />
+        )}
       </TouchableOpacity>
     </>
   );
@@ -34,5 +52,17 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontFamily: "Poppins-Medium",
     color: "white",
+  },
+  activityIndicator: {
+    marginLeft: 5,
+  },
+  CustomButtonLoading: {
+    width: "100%",
+    height: "100%",
+    backgroundColor: "#704F38",
+    borderRadius: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    opacity: 0.5,
   },
 });

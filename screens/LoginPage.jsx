@@ -1,37 +1,53 @@
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Alert,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import FormField from "../components/FormField";
 import CustomButton from "../components/CustomButton";
 import icons from "../constants/icons";
 import { useNavigation } from "@react-navigation/native";
+import { useGlobalContext } from "../context/GlobalProvider";
+import { getCurrentUser, signIn } from "../lib/appwrite";
 
 const LoginPage = () => {
   const navigation = useNavigation();
+  const nextPage = () => {
+    navigation.navigate("Register");
+  };
+
+  const { setUser, setIsLoggedIn } = useGlobalContext();
+  const [isSubmitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const submit = async () => {
-    if (!form.email || !form.password) {
-      Alert.alert("Error", "please fill in the field");
+    if (form.email === "" || form.password === "") {
+      Alert.alert("Error", "Please fill in all fields");
     }
-    setIsSubmitting(true);
+
+    setSubmitting(true);
+
     try {
       await signIn(form.email, form.password);
-
-      router.replace("/home");
+      const result = await getCurrentUser();
+      setUser(result);
+      setIsLoggedIn(true);
+      navigation.navigate("Main");
     } catch (error) {
-      Alert.alert("Error", error.message);
+      Alert.alert("Error", "there is an error");
     } finally {
-      setIsSubmitting(false);
+      setSubmitting(false);
     }
   };
-  const nextPage = () => {
-    navigation.navigate("Register");
-  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
@@ -71,7 +87,11 @@ const LoginPage = () => {
           </View>
 
           <View style={styles.buttonContainer}>
-            <CustomButton title="Sign In" />
+            <CustomButton
+              title="Sign In"
+              handlePress={submit}
+              isLoading={isSubmitting}
+            />
           </View>
         </View>
         <View style={styles.authOptionContainer}>

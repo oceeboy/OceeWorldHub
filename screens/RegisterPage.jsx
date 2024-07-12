@@ -6,13 +6,15 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import FormField from "../components/FormField";
 import CustomButton from "../components/CustomButton";
 import icons from "../constants/icons";
 import { useNavigation } from "@react-navigation/native";
 import CheckBox from "../components/CheckBox";
+import { createUser } from "../lib/appwrite"; // Import createUser from appwrite
+import { useGlobalContext } from "../context/GlobalProvider";
 
 const RegisterPage = () => {
   const navigation = useNavigation();
@@ -20,8 +22,11 @@ const RegisterPage = () => {
     navigation.navigate("Login");
   };
 
-  const [isChecked, setIsChecked] = useState(false);
+  const Redirect = () => {
+    navigation.navigate("Main");
+  };
 
+  const [isChecked, setIsChecked] = useState(false);
   const [isSubmitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     name: "",
@@ -29,13 +34,31 @@ const RegisterPage = () => {
     password: "",
   });
 
-  const submit = () => {
-    console.log(form);
+  const { setUser, setIsLoggedIn } = useGlobalContext();
+
+  const submit = async () => {
+    if (form.email === "" || form.password === "" || form.name === "") {
+      Alert.alert("Error", "Please fill in all fields");
+    }
+
+    setSubmitting(true);
+    try {
+      const newUser = await createUser(form.email, form.password, form.name);
+      setUser(newUser);
+      setIsLoggedIn(true);
+      Alert.alert("Success", "Account created successfully!", [
+        { text: "OK", onPress: Redirect },
+      ]);
+    } catch (error) {
+      // Alert.alert("Error", error.message);
+      console.log(error);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleCheckboxPress = () => {
     setIsChecked(!isChecked);
-    console.log("Checkbox state:", !isChecked);
   };
 
   return (
@@ -98,7 +121,6 @@ const RegisterPage = () => {
               title="Sign Up"
               handlePress={submit}
               isLoading={isSubmitting}
-              // disabled={isButtonDisabled}
             />
           </View>
         </View>

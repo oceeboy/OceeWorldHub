@@ -9,6 +9,8 @@ import AuthenticationPage from "./screens/AuthenticationPage";
 import { FontProvider } from "./context/FontProvider";
 import LoginPage from "./screens/LoginPage";
 import RegisterPage from "./screens/RegisterPage";
+import GlobalProvider from "./context/GlobalProvider";
+import { CartProvider } from "./context/CartContext";
 
 const Stack = createNativeStackNavigator();
 
@@ -16,7 +18,7 @@ const Tab = createBottomTabNavigator();
 
 function MainNavigator() {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator initialRouteName="WelcomeScreen">
       <Stack.Screen
         name="WelcomeScreen"
         component={WelcomePage}
@@ -85,10 +87,14 @@ function BottomTabNavigator() {
 
 export default function App() {
   return (
-    <FontProvider>
-      <NavigationContainer>
-        <MainNavigator />
-      </NavigationContainer>
-    </FontProvider>
+    <GlobalProvider>
+      <CartProvider>
+        <FontProvider>
+          <NavigationContainer>
+            <MainNavigator />
+          </NavigationContainer>
+        </FontProvider>
+      </CartProvider>
+    </GlobalProvider>
   );
 }

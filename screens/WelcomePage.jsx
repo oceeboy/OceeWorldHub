@@ -1,12 +1,26 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import images from "../constants/images";
 import icons from "../constants/icons";
 import { useFontsLoaded } from "../context/FontProvider";
-import { useNavigation } from "@react-navigation/native";
+import { CommonActions, useNavigation } from "@react-navigation/native";
+import { useGlobalContext } from "../context/GlobalProvider";
 
 const WelcomePage = () => {
+  const { isLoading, isLoggedIn } = useGlobalContext();
+
+  useEffect(() => {
+    if (!isLoading && isLoggedIn) {
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: "Main" }],
+        })
+      );
+    }
+  }, [isLoading, isLoggedIn, navigation]);
+
   const fontsLoaded = useFontsLoaded();
 
   if (!fontsLoaded) {
